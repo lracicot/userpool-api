@@ -1,0 +1,22 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    # ports:
+    #   - 27017:27017
+    environment:
+      MONGO_DATA_DIR: /data/db
+      MONGO_LOG_DIR: /dev/null
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_URL=mongodb://mongo/membership
+      - PRIVATE_KEY_FILE=/app/key
+      - PUBLIC_KEY_FILE=/app/key.pub
+    volumes:
+      - ./src:/app/src
