@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import sendMail from '../mailer';
-import welcomeEmail from '../emails/welcome';
 import {
   generatePasswordToken,
   encryptPassword,
@@ -55,11 +54,10 @@ export async function create(req, res) {
   user.resetPasswordToken = activationToken;
   user.save();
 
-  sendMail(req.body.email, 'Promo - nouveau compte', welcomeEmail(
-    'promo.polymtl.ca',
-    req.body.email,
-    `https://sso.promo.polymtl.ca/resetPassword/${Buffer.from(activationToken).toString('base64')}`,
-  ));
+  sendMail(req.body.email, 'New account', rootApp.welcomeEmail
+    .replace(/\{\{url\}\}/g, rootApp.url)
+    .replace(/\{\{username\}\}/g, req.body.email)
+    .replace(/\{\{token\}\}/g, Buffer.from(activationToken).toString('base64')));
 
   return res.status(201).send({ user });
 }

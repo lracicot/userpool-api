@@ -15,11 +15,11 @@ services:
     ports:
       - 3000:3000
     environment:
-      - MONGO_URL=mongodb://mongo/membership
-      - SMTP_ADDRESS=smtp.mailtrap.io
-      - SMTP_PORT=2525
-      - SMTP_USER=d242d4f16fba64
-      - SMTP_PASS=fb27399a261cbc
-      - SMTP_FROM=info@louisracicot.com
+      MONGO_URL: "mongodb://mongo/membership"
+      SMTP_ADDRESS: "smtp.mailtrap.io"
+      SMTP_PORT: 2525
+      SMTP_USER: "${SMTP_USER}"
+      SMTP_PASS: "${SMTP_PASS}"
+      SMTP_FROM: "info@louisracicot.com"
     volumes:
       - ./src:/app/src

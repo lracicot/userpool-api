@@ -53,6 +53,7 @@ app.put('/pool/:uuid/addApp', auth('ROLE_ADMIN'), fetchUserPool, asyncRoute(AppC
 app.get('/app/:uuid/exportKeys', auth('ROLE_ADMIN'), asyncRoute(AppController.exportKeys));
 app.get('/app/:uuid', auth('ROLE_ADMIN'), asyncRoute(AppController.details));
 app.delete('/app/:uuid', auth('ROLE_ADMIN'), asyncRoute(AppController.remove));
+app.post('/app/:uuid', auth('ROLE_ADMIN'), asyncRoute(AppController.update));
 
 // Admin user pool endpoints
 app.get('/pools', auth('ROLE_ADMIN'), asyncRoute(UserPoolController.list));

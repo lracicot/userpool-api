@@ -12,7 +12,6 @@ import {
   encryptPassword,
 } from '../authentication';
 import sendMail from '../mailer';
-import forgotPasswordEmail from '../emails/forgotPassword';
 
 export async function login(req, res) {
   const { clientIp } = req;
@@ -57,9 +56,10 @@ export async function forgotPassword(req, res) {
     const resetPasswordToken = generatePasswordToken(app, user);
     user.resetPasswordToken = resetPasswordToken;
     user.save();
-    sendMail(req.body.email, 'Promo - réinitialisation de compte', forgotPasswordEmail(
-      `https://sso.promo.polymtl.ca/resetPassword/${Buffer.from(resetPasswordToken).toString('base64')}`,
-    ));
+
+    sendMail(req.body.email, 'Reset password', app.resetEmail
+      .replace(/\{\{url\}\}/g, app.url)
+      .replace(/\{\{token\}\}/g, Buffer.from(resetPasswordToken).toString('base64')));
 
     return res.status(200).send();
   }

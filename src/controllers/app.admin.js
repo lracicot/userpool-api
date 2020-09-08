@@ -3,6 +3,11 @@ import { JWK } from 'jose';
 import AppClient from '../models/appClient';
 import { generatePrivateKeyPair } from '../authentication';
 
+
+const excludeSaveAttributes = ({
+  uuid, isRoot, key, ...app
+}) => app;
+
 export const details = (req, res) => AppClient.findOne({ uuid: req.params.uuid })
   .then(app => res.json(app));
 
@@ -31,4 +36,11 @@ export const remove = async (req, res) => {
 
   await AppClient.deleteOne({ uuid: req.params.uuid });
   return res.status(200).json(app);
+};
+
+export const update = async (req, res) => {
+  const { uuid } = req.params;
+  await AppClient.updateOne({ uuid }, excludeSaveAttributes(req.body));
+
+  return res.status(200).json(await AppClient.findOne({ uuid }));
 };

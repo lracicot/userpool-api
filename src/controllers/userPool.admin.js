@@ -36,9 +36,9 @@ export const remove = (req, res) => UserPool.deleteOne({ uuid: req.userPool.uuid
     : res.status(400).send()));
 
 export async function start(req, res) {
-  const userPools = await UserPool.remove({});
-  const apps = await AppClient.remove({});
-  const users = await User.remove({});
+  const userPools = await UserPool.find({});
+  const apps = await AppClient.find({});
+  const users = await User.find({});
 
   if (apps.length || users.length || userPools.length) {
     return res.status(400).send();
