@@ -5,9 +5,10 @@ import timestamps from 'mongoose-timestamp';
 
 
 export const AppClientSchema = mongoose.Schema({
-  uuid: { type: String, index: true },
-  name: String,
-  key: Object,
+  uuid: { type: String, index: true, required: true },
+  name: { type: String, unique: true, required: true },
+  isRoot: { type: Boolean, default: false },
+  key: { type: Object, required: true },
 });
 
 AppClientSchema.set('toJSON', {
@@ -16,7 +17,7 @@ AppClientSchema.set('toJSON', {
   transform: (doc, ret) => {
     delete ret.id;
     delete ret._id;
-    delete ret.publicKey;
+    delete ret.key;
   },
 });
 

@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
+/* eslint-disable func-names */
 import mongoose from 'mongoose';
 import timestamps from 'mongoose-timestamp';
 
@@ -15,8 +16,12 @@ export const RefreshTokenSchema = mongoose.Schema({
   replacedByToken: String,
 });
 
-RefreshTokenSchema.virtual('isExpired').get(() => Date.now() >= this.expires);
-RefreshTokenSchema.virtual('isActive').get(() => !this.revoked && !this.isExpired);
+RefreshTokenSchema.virtual('isExpired').get(function () {
+  return Date.now() >= this.expires;
+});
+RefreshTokenSchema.virtual('isActive').get(function () {
+  return !this.revoked && !this.isExpired;
+});
 
 RefreshTokenSchema.set('toJSON', {
   virtuals: true,

@@ -3,9 +3,11 @@ FROM node:12-alpine
 WORKDIR /app
 RUN apk --no-cache add --virtual builds-deps build-base python
 
-COPY . .
+COPY package* ./
 
 RUN npm install
 RUN npm rebuild bcrypt --build-from-source
+
+COPY . .
 
 CMD npm run dev

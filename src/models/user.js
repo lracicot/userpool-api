@@ -5,13 +5,17 @@ import timestamps from 'mongoose-timestamp';
 
 
 export const UserSchema = mongoose.Schema({
-  uuid: { type: String, index: true },
+  uuid: { type: String, index: true, required: true },
   name: String,
-  email: { type: String, required: true, unique: true },
-  emailVerified: Boolean,
-  apps: [{ type: mongoose.Schema.Types.ObjectId, ref: 'AppClient' }],
-  passwordHash: { type: String, required: true },
-  roles: [mongoose.Schema({ role: String, promo: Number }, { _id: false })],
+  profile: { },
+  email: { type: String, required: true },
+  emailVerified: { type: Boolean, default: false },
+  passwordHash: { type: String, required: false },
+  resetPasswordToken: String,
+  roles: [mongoose.Schema({
+    name: { type: String, required: true },
+    meta: Object,
+  }, { _id: false })],
 });
 
 UserSchema.set('toJSON', {
@@ -22,6 +26,7 @@ UserSchema.set('toJSON', {
     delete ret._id;
     delete ret.salt;
     delete ret.passwordHash;
+    delete ret.resetPasswordToken;
   },
 });
 
