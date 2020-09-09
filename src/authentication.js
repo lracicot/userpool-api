@@ -2,13 +2,13 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import { JWT, JWK } from 'jose';
 
-export const generateAccessToken = (app, user) => {
+export const generateAccessToken = (app, pool, user) => {
   const key = JWK.asKey(app.key);
   return JWT.sign({
     username: user.uuid,
     email_verified: user.emailVerified,
   }, key, {
-    issuer: 'https://promo.polymtl.ca',
+    issuer: pool.uuid,
     expiresIn: '60 minutes',
     audience: [app.uuid],
     header: {
@@ -17,12 +17,12 @@ export const generateAccessToken = (app, user) => {
   });
 };
 
-export const generatePasswordToken = (app, user) => {
+export const generatePasswordToken = (app, pool, user) => {
   const key = JWK.asKey(app.key);
   return JWT.sign({
     username: user.uuid,
   }, key, {
-    issuer: 'https://promo.polymtl.ca',
+    issuer: pool.uuid,
     expiresIn: '24 hours',
     audience: [app.uuid],
     header: {
@@ -31,7 +31,7 @@ export const generatePasswordToken = (app, user) => {
   });
 };
 
-export const generateIdToken = (app, user) => {
+export const generateIdToken = (app, pool, user) => {
   const key = JWK.asKey(app.key);
   return JWT.sign({
     user_uuid: user.uuid,
@@ -41,7 +41,7 @@ export const generateIdToken = (app, user) => {
     email_verified: user.emailVerified,
     profile: user.profile,
   }, key, {
-    issuer: 'https://promo.polymtl.ca',
+    issuer: pool.uuid,
     expiresIn: '60 minutes',
     audience: [app.uuid],
     header: {
@@ -50,13 +50,13 @@ export const generateIdToken = (app, user) => {
   });
 };
 
-export const verifyPasswordToken = (app, token) => {
+export const verifyPasswordToken = (app, pool, token) => {
   const key = JWK.asKey(app.key);
 
   try {
     JWT.verify(token, key, {
       audience: app.uuid,
-      issuer: 'https://promo.polymtl.ca',
+      issuer: pool.uuid,
       clockTolerance: '1 min',
     });
 
@@ -74,14 +74,14 @@ export const generateRefreshToken = (app, user, createdByIp) => ({
   createdByIp,
 });
 
-export const authenticate = async (app, user, password) => {
+export const authenticate = async (app, pool, user, password) => {
   if (!await bcrypt.compare(password, user.passwordHash)) {
     throw new Error('invalid password');
   }
 
   return {
-    idToken: generateIdToken(app, user),
-    accessToken: generateAccessToken(app, user),
+    idToken: generateIdToken(app, pool, user),
+    accessToken: generateAccessToken(app, pool, user),
   };
 };
 

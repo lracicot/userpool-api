@@ -50,7 +50,7 @@ export async function create(req, res) {
 
   const rootApp = userPool.apps.find(app => app.isRoot);
 
-  const activationToken = generatePasswordToken(rootApp, user);
+  const activationToken = generatePasswordToken(rootApp, userPool, user);
   user.resetPasswordToken = activationToken;
   user.save();
 

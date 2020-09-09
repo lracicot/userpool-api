@@ -2,19 +2,19 @@ import { JWT, JWK } from 'jose';
 import UserPool from '../models/userPool';
 import AppClient from '../models/appClient';
 
-const decodeToken = (app, token) => JWT.verify(token, JWK.asKey(app.key), {
+const decodeToken = (app, pool, token) => JWT.verify(token, JWK.asKey(app.key), {
   audience: app.uuid,
-  issuer: 'https://promo.polymtl.ca',
+  issuer: pool.uuid,
   clockTolerance: '1 min',
 });
 
-const authorize = (app, authorization, role = null) => {
+const authorize = (app, pool, authorization, role = null) => {
   if (!authorization) {
     throw new Error('Unauthorized');
   }
 
   const token = authorization.replace('Bearer ', '');
-  const jws = decodeToken(app, token);
+  const jws = decodeToken(app, pool, token);
 
   if (role && !jws.roles.find(r => r.name === role)) {
     throw new Error('Unauthorized');
@@ -27,9 +27,10 @@ export function authorizeUser() {
   return [
     async (req, res, next) => {
       const app = await AppClient.findOne({ uuid: req.query.appId });
+      const pool = await UserPool.findOne({ apps: app.id });
 
       try {
-        req.jws = authorize(app, req.headers.authorization);
+        req.jws = authorize(app, pool, req.headers.authorization);
         return next();
       } catch (err) {
         return res.status(401).json({ message: 'Unauthorized' });
@@ -41,11 +42,11 @@ export function authorizeUser() {
 export function authorizeAdmin(role = null) {
   return [
     async (req, res, next) => {
-      const app = await UserPool.findOne({ isRoot: true })
-        .then(userPool => userPool.apps.find(a => a.isRoot));
+      const pool = await UserPool.findOne({ isRoot: true });
+      const app = pool.apps.find(a => a.isRoot);
 
       try {
-        req.jws = authorize(app, req.headers.authorization, role);
+        req.jws = authorize(app, pool, req.headers.authorization, role);
         return next();
       } catch (err) {
         return res.status(401).json({ message: 'Unauthorized' });

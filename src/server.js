@@ -36,7 +36,7 @@ app.post('/start', asyncRoute(UserPoolController.start));
 
 // User endpoints
 app.post('/user/:uuid/login', fetchUserPool, asyncRoute(UserController.login));
-app.post('/user/refresh', asyncRoute(UserController.refresh));
+app.post('/user/:uuid/refresh', fetchUserPool, asyncRoute(UserController.refresh));
 app.post('/user/:uuid/forgotPassword', fetchUserPool, asyncRoute(UserController.forgotPassword));
 app.post('/user/:uuid/reset/:resetPasswordToken', fetchUserPool, asyncRoute(UserController.resetPassword));
 app.post('/user/updateProfile', authorizeUser(), asyncRoute(UserController.updateProfile));

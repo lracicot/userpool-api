@@ -30,7 +30,7 @@ export async function login(req, res) {
     const {
       idToken,
       accessToken,
-    } = await authenticate(app, user, req.body.password);
+    } = await authenticate(app, req.userPool, user, req.body.password);
 
     // Invalidate past refresh tokens if any
     await RefreshToken.find({ user, revoked: null }).then(tokens => tokens.map((token) => {
@@ -53,7 +53,7 @@ export async function forgotPassword(req, res) {
   const app = await AppClient.findOne({ uuid: req.userPool.apps.find(a => a.isRoot).uuid });
 
   if (user && app) {
-    const resetPasswordToken = generatePasswordToken(app, user);
+    const resetPasswordToken = generatePasswordToken(app, req.userPool, user);
     user.resetPasswordToken = resetPasswordToken;
     user.save();
 
@@ -71,7 +71,7 @@ export async function resetPassword(req, res) {
   const user = await User.findOne({ resetPasswordToken });
   const app = await AppClient.findOne({ uuid: req.userPool.apps.find(a => a.isRoot).uuid });
 
-  if (user && app && verifyPasswordToken(app, resetPasswordToken)) {
+  if (user && app && verifyPasswordToken(app, req.userPool, resetPasswordToken)) {
     user.passwordHash = (await encryptPassword(req.body)).passwordHash;
     user.resetPasswordToken = '';
     await user.save();
@@ -109,8 +109,8 @@ export async function refresh(req, res) {
     await refreshToken.save();
     await RefreshToken.create(newRefreshToken);
 
-    const accessToken = generateAccessToken(app, user);
-    const idToken = generateIdToken(app, user);
+    const accessToken = generateAccessToken(app, req.userPool, user);
+    const idToken = generateIdToken(app, req.userPool, user);
 
     return res.status(200).json({ idToken, accessToken, refreshToken: newRefreshToken.token });
   }
